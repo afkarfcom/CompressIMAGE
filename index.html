@@ -1,0 +1,383 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Ultra Image Compressor - Pro Dashboard</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    
+    <script type="text/javascript" src="https://cdn.jsdelivr.net/npm/browser-image-compression@2.0.2/dist/browser-image-compression.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jszip/3.10.1/jszip.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/FileSaver.js/2.0.5/FileSaver.min.js"></script>
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+
+    <style>
+        ::-webkit-scrollbar { width: 8px; }
+        ::-webkit-scrollbar-track { background: #1e293b; }
+        ::-webkit-scrollbar-thumb { background: #475569; border-radius: 4px; }
+        ::-webkit-scrollbar-thumb:hover { background: #64748b; }
+
+        .glass-panel {
+            background: rgba(30, 41, 59, 0.7);
+            backdrop-filter: blur(12px);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+        }
+        
+        .preset-btn.active {
+            border-color: #3b82f6;
+            background-color: rgba(59, 130, 246, 0.1);
+            color: #60a5fa;
+            box-shadow: inset 0 0 10px rgba(59, 130, 246, 0.2);
+        }
+
+        .drop-zone {
+            border: 2px dashed #475569;
+            transition: all 0.3s ease;
+        }
+        .drop-zone:hover, .drop-zone.dragover {
+            border-color: #60a5fa;
+            background-color: rgba(59, 130, 246, 0.05);
+        }
+    </style>
+</head>
+<body class="bg-[#0f172a] text-slate-200 min-h-screen font-sans selection:bg-blue-500 selection:text-white">
+
+    <nav class="border-b border-slate-800 bg-[#0f172a] sticky top-0 z-50">
+        <div class="max-w-7xl mx-auto px-4 py-3 sm:py-4 flex justify-between items-center">
+            <div class="flex items-center gap-2 sm:gap-3">
+                <div class="bg-blue-600 p-1.5 sm:p-2 rounded-lg">
+                    <i class="fa-solid fa-layer-group text-white text-sm sm:text-base"></i>
+                </div>
+                <h1 class="text-lg sm:text-xl font-bold tracking-wide text-white">Ultra<span class="text-blue-500">Compress</span> <span class="hidden sm:inline-block text-xs font-normal text-slate-500 ml-2">PRO EDITION</span></h1>
+            </div>
+            <div class="text-[10px] sm:text-xs text-slate-500 bg-slate-800 px-2 sm:px-3 py-1 rounded-full border border-slate-700 whitespace-nowrap">
+                <i class="fa-solid fa-shield-halved mr-1"></i> <span class="hidden sm:inline">Client-Side</span> Secure
+            </div>
+        </div>
+    </nav>
+
+    <div class="max-w-7xl mx-auto px-3 sm:px-4 py-5 sm:py-8 grid grid-cols-1 lg:grid-cols-12 gap-5 sm:gap-8">
+        
+        <div class="lg:col-span-4 space-y-5 sm:space-y-6">
+            
+            <div class="glass-panel rounded-xl p-4 sm:p-6 shadow-lg">
+                <h3 class="text-xs sm:text-sm font-semibold text-slate-400 uppercase tracking-wider mb-3 sm:mb-4">1. Input Gambar</h3>
+                <label class="drop-zone w-full h-28 sm:h-32 rounded-xl flex flex-col items-center justify-center cursor-pointer relative">
+                    <input type="file" id="imageInput" multiple accept="image/*" class="absolute inset-0 w-full h-full opacity-0 cursor-pointer">
+                    <i class="fa-solid fa-cloud-arrow-up text-2xl sm:text-3xl text-slate-500 mb-2"></i>
+                    <span class="text-xs sm:text-sm font-medium text-slate-400">Klik / Drop Gambar</span>
+                    <span class="text-[10px] sm:text-xs text-slate-600 mt-1">Mendukung banyak file</span>
+                </label>
+                <div id="fileCountBadge" class="hidden mt-3 text-center">
+                    <span class="bg-blue-900 text-blue-200 text-xs px-3 py-1.5 rounded-full border border-blue-700 font-semibold shadow-inner inline-block w-full sm:w-auto">0 File Dipilih</span>
+                </div>
+            </div>
+
+            <div class="glass-panel rounded-xl p-4 sm:p-6 shadow-lg">
+                <h3 class="text-xs sm:text-sm font-semibold text-slate-400 uppercase tracking-wider mb-3 sm:mb-4">2. Standar Profesional</h3>
+                
+                <div class="grid grid-cols-3 gap-1.5 sm:gap-2 mb-5 sm:mb-6">
+                    <button onclick="applyPreset('high')" id="btnHigh" class="preset-btn active border border-slate-600 rounded-lg p-2 sm:p-3 text-center hover:bg-slate-800 transition">
+                        <div class="text-base sm:text-lg mb-1">💎</div>
+                        <div class="text-[10px] sm:text-xs font-bold">High</div>
+                        <div class="text-[8px] sm:text-[9px] text-slate-500 hidden sm:block">Hero / Retina</div>
+                    </button>
+                    <button onclick="applyPreset('medium')" id="btnMedium" class="preset-btn border border-slate-600 rounded-lg p-2 sm:p-3 text-center hover:bg-slate-800 transition">
+                        <div class="text-base sm:text-lg mb-1">🛍️</div>
+                        <div class="text-[10px] sm:text-xs font-bold">Medium</div>
+                        <div class="text-[8px] sm:text-[9px] text-slate-500 hidden sm:block">Catalog</div>
+                    </button>
+                    <button onclick="applyPreset('small')" id="btnSmall" class="preset-btn border border-slate-600 rounded-lg p-2 sm:p-3 text-center hover:bg-slate-800 transition">
+                        <div class="text-base sm:text-lg mb-1">⚡</div>
+                        <div class="text-[10px] sm:text-xs font-bold">Small</div>
+                        <div class="text-[8px] sm:text-[9px] text-slate-500 hidden sm:block">Thumbnail</div>
+                    </button>
+                </div>
+
+                <div class="space-y-4 border-t border-slate-700 pt-4 sm:pt-5">
+                    
+                    <div>
+                        <div class="flex justify-between mb-1">
+                            <label class="text-xs sm:text-sm font-medium text-slate-300">Max Size (MB)</label>
+                        </div>
+                        <div class="relative">
+                            <input type="number" id="maxSizeMB" value="5.0" step="0.1" class="w-full bg-slate-900 border border-slate-600 rounded-lg py-2 pl-3 pr-10 text-white font-mono focus:ring-2 focus:ring-blue-500 outline-none transition text-sm sm:text-base">
+                            <span class="absolute right-3 top-2 sm:top-2 text-slate-500 text-xs sm:text-sm font-bold">MB</span>
+                        </div>
+                    </div>
+
+                    <div>
+                        <label class="block text-xs sm:text-sm font-medium text-slate-300 mb-1">Max Resolution</label>
+                        <select id="maxWidth" class="w-full bg-slate-900 border border-slate-600 rounded-lg py-2 px-3 text-white font-mono focus:ring-2 focus:ring-blue-500 outline-none cursor-pointer text-sm sm:text-base">
+                            <option value="0" selected>Original (No Resize)</option>
+                            <option value="2560">2560px (Retina/4K)</option>
+                            <option value="1920">1920px (Full HD)</option>
+                            <option value="1500">1500px (E-commerce)</option>
+                            <option value="1080">1080px (Sosmed)</option>
+                            <option value="800">800px (Thumbnail)</option>
+                        </select>
+                    </div>
+
+                    <div>
+                        <label class="block text-xs sm:text-sm font-medium text-green-400 mb-1">Output Format</label>
+                        <select id="outputFormat" class="w-full bg-slate-900 border border-green-800 rounded-lg py-2 px-3 text-white focus:ring-2 focus:ring-green-500 outline-none cursor-pointer text-sm sm:text-base">
+                            <option value="auto">Auto (Format Asli)</option>
+                            <option value="image/jpeg">JPEG (Kualitas Terbaik)</option>
+                            <option value="image/webp">WebP (Ukuran Terkecil)</option>
+                        </select>
+                    </div>
+                </div>
+
+                <button onclick="startProcessing()" id="btnProcess" class="mt-5 sm:mt-6 w-full bg-blue-600 hover:bg-blue-500 text-white font-bold py-3 sm:py-3 rounded-lg shadow-[0_0_15px_rgba(37,99,235,0.4)] transition-all transform active:scale-95 disabled:opacity-50 disabled:cursor-not-allowed text-sm sm:text-base">
+                    <i class="fa-solid fa-wand-magic-sparkles mr-2"></i> Eksekusi Kompresi
+                </button>
+            </div>
+        </div>
+
+        <div class="lg:col-span-8">
+            <div id="progressSection" class="hidden mb-5 sm:mb-6 bg-slate-800 rounded-xl p-4 border border-slate-700 flex flex-col sm:flex-row items-stretch sm:items-center gap-4 shadow-lg">
+                <div class="flex-1 w-full">
+                    <div class="flex justify-between mb-2">
+                        <span class="text-[10px] sm:text-xs text-blue-400 font-bold uppercase tracking-widest"><i class="fa-solid fa-gear fa-spin mr-1"></i> Processing Queue</span>
+                        <span id="progressText" class="text-[10px] sm:text-xs font-bold text-white bg-blue-600 px-2 py-0.5 rounded">0%</span>
+                    </div>
+                    <div class="w-full bg-slate-900 rounded-full h-3 border border-slate-700 overflow-hidden">
+                        <div id="progressBar" class="bg-gradient-to-r from-blue-600 to-indigo-500 h-full rounded-full transition-all duration-300 relative" style="width: 0%">
+                            <div class="absolute top-0 left-0 right-0 bottom-0 bg-white opacity-20" style="background-image: linear-gradient(45deg,rgba(255,255,255,.15) 25%,transparent 25%,transparent 50%,rgba(255,255,255,.15) 50%,rgba(255,255,255,.15) 75%,transparent 75%,transparent); background-size: 1rem 1rem; animation: progress-stripes 1s linear infinite;"></div>
+                        </div>
+                    </div>
+                </div>
+                <button onclick="downloadAll()" id="btnDownloadAll" class="hidden w-full sm:w-auto px-5 py-3 sm:py-3 bg-green-600 hover:bg-green-500 text-white text-sm font-bold rounded-lg shadow-[0_0_15px_rgba(22,163,74,0.4)] transition hover:-translate-y-1 flex-shrink-0 flex justify-center items-center">
+                    <i class="fa-solid fa-file-zipper mr-2"></i> Unduh Semua (ZIP)
+                </button>
+            </div>
+
+            <div id="emptyState" class="h-64 sm:h-96 flex flex-col items-center justify-center text-slate-600 border-2 border-dashed border-slate-700 rounded-2xl bg-slate-800/30">
+                <i class="fa-solid fa-camera-retro text-5xl sm:text-6xl mb-3 sm:mb-4 opacity-40"></i>
+                <p class="font-medium text-slate-500 text-sm sm:text-base">Ruang Kerja Kosong</p>
+                <p class="text-xs sm:text-sm mt-1 text-slate-600">Pilih gambar untuk melihat pratinjau</p>
+            </div>
+
+            <div id="gallery" class="grid grid-cols-1 md:grid-cols-2 gap-3 sm:gap-4 pb-20"></div>
+        </div>
+    </div>
+
+    <script>
+        const imageInput = document.getElementById('imageInput');
+        const gallery = document.getElementById('gallery');
+        const emptyState = document.getElementById('emptyState');
+        const fileCountBadge = document.getElementById('fileCountBadge');
+        
+        const maxSizeInput = document.getElementById('maxSizeMB');
+        const maxWidthInput = document.getElementById('maxWidth');
+        const outputFormatInput = document.getElementById('outputFormat');
+        
+        const btnProcess = document.getElementById('btnProcess');
+        const progressSection = document.getElementById('progressSection');
+        const progressBar = document.getElementById('progressBar');
+        const progressText = document.getElementById('progressText');
+        const btnDownloadAll = document.getElementById('btnDownloadAll');
+
+        let selectedFiles = [];
+        let zipObject = new JSZip();
+        let isProcessing = false;
+
+        function applyPreset(type) {
+            document.querySelectorAll('.preset-btn').forEach(btn => btn.classList.remove('active'));
+            
+            if (type === 'high') {
+                document.getElementById('btnHigh').classList.add('active');
+                maxSizeInput.value = 5.0; 
+                maxWidthInput.value = 0;   
+            } else if (type === 'medium') {
+                document.getElementById('btnMedium').classList.add('active');
+                maxSizeInput.value = 1.5;  
+                maxWidthInput.value = 1500; 
+            } else if (type === 'small') {
+                document.getElementById('btnSmall').classList.add('active');
+                maxSizeInput.value = 0.3;  
+                maxWidthInput.value = 800;  
+            }
+            
+            maxSizeInput.classList.add('bg-blue-900', 'text-blue-200');
+            setTimeout(() => maxSizeInput.classList.remove('bg-blue-900', 'text-blue-200'), 300);
+        }
+
+        maxSizeInput.addEventListener('input', () => {
+            document.querySelectorAll('.preset-btn').forEach(btn => btn.classList.remove('active'));
+        });
+        maxWidthInput.addEventListener('change', () => {
+            document.querySelectorAll('.preset-btn').forEach(btn => btn.classList.remove('active'));
+        });
+
+        imageInput.addEventListener('change', (e) => {
+            handleFiles(e.target.files);
+        });
+
+        function handleFiles(files) {
+            selectedFiles = Array.from(files);
+            gallery.innerHTML = '';
+            zipObject = new JSZip();
+            btnDownloadAll.classList.add('hidden');
+            progressSection.classList.add('hidden');
+            progressBar.style.width = '0%';
+            
+            if (selectedFiles.length > 0) {
+                emptyState.classList.add('hidden');
+                fileCountBadge.classList.remove('hidden');
+                fileCountBadge.querySelector('span').innerText = `${selectedFiles.length} File Dipilih`;
+                selectedFiles.forEach((file, idx) => createPreviewCard(file, idx));
+            } else {
+                emptyState.classList.remove('hidden');
+                fileCountBadge.classList.add('hidden');
+            }
+        }
+
+        function createPreviewCard(file, index) {
+            const sizeMB = (file.size / 1024 / 1024).toFixed(2);
+            const card = document.createElement('div');
+            // Menyesuaikan padding kartu untuk mobile
+            card.className = "bg-slate-800 rounded-xl p-3 sm:p-4 border border-slate-700 shadow-md flex flex-col gap-3 transition-all";
+            card.id = `card-${index}`;
+
+            const imgUrl = URL.createObjectURL(file);
+
+            card.innerHTML = `
+                <div class="flex gap-3 sm:gap-4 items-center w-full">
+                    <div class="w-14 h-14 sm:w-16 sm:h-16 flex-shrink-0 rounded-lg overflow-hidden bg-slate-900 border border-slate-600">
+                        <img src="${imgUrl}" class="w-full h-full object-cover opacity-90">
+                    </div>
+                    <div class="flex-1 min-w-0">
+                        <div class="flex justify-between items-start">
+                            <h4 class="text-xs sm:text-sm font-medium text-white truncate pr-2" title="${file.name}">${file.name}</h4>
+                            <span id="badge-${index}" class="text-[8px] sm:text-[9px] font-bold px-1.5 sm:px-2 py-0.5 rounded bg-slate-700 text-slate-400 border border-slate-600 flex-shrink-0 mt-0.5">MENUNGGU</span>
+                        </div>
+                        <div class="mt-1 text-[10px] sm:text-xs text-slate-400">
+                            RAW: <span class="text-slate-300 font-mono">${sizeMB} MB</span>
+                        </div>
+                        <div id="result-row-${index}" class="hidden mt-0.5 sm:mt-1 text-[10px] sm:text-xs">
+                            <span class="text-green-500">Baru:</span> <span id="new-size-${index}" class="text-green-400 font-bold font-mono">...</span>
+                        </div>
+                    </div>
+                </div>
+                
+                <div id="dl-area-${index}" class="hidden w-full border-t border-slate-700 pt-2.5 sm:pt-3 flex justify-center sm:justify-end">
+                    <a id="btn-dl-${index}" href="#" download class="w-full sm:w-auto px-3 py-2 sm:py-1.5 bg-blue-600/20 text-blue-400 hover:bg-blue-600 hover:text-white border border-blue-500/50 rounded text-xs font-bold transition flex justify-center items-center gap-2">
+                        <i class="fa-solid fa-download"></i> Unduh Gambar
+                    </a>
+                </div>
+            `;
+            gallery.appendChild(card);
+        }
+
+        async function startProcessing() {
+            if (selectedFiles.length === 0) return alert("Belum ada gambar yang dimasukkan.");
+            if (isProcessing) return;
+
+            isProcessing = true;
+            btnProcess.disabled = true;
+            btnProcess.innerHTML = '<i class="fa-solid fa-circle-notch fa-spin mr-2"></i> Sedang Memproses...';
+            progressSection.classList.remove('hidden');
+
+            const targetFormat = outputFormatInput.value;
+            const maxSizeMB = parseFloat(maxSizeInput.value);
+            const maxWidth = parseInt(maxWidthInput.value);
+
+            const options = {
+                maxSizeMB: maxSizeMB,
+                maxWidthOrHeight: maxWidth > 0 ? maxWidth : undefined,
+                useWebWorker: true,
+                initialQuality: 0.95, 
+                fileType: targetFormat === 'auto' ? undefined : targetFormat,
+                alwaysKeepResolution: maxWidth === 0 
+            };
+
+            for (let i = 0; i < selectedFiles.length; i++) {
+                const file = selectedFiles[i];
+                const badge = document.getElementById(`badge-${i}`);
+                const resultRow = document.getElementById(`result-row-${i}`);
+                const newSizeText = document.getElementById(`new-size-${i}`);
+                const card = document.getElementById(`card-${i}`);
+                
+                const dlArea = document.getElementById(`dl-area-${i}`);
+                const btnDl = document.getElementById(`btn-dl-${i}`);
+
+                badge.className = "text-[8px] sm:text-[9px] font-bold px-1.5 sm:px-2 py-0.5 rounded bg-blue-900 text-blue-300 border border-blue-500 animate-pulse shadow-[0_0_10px_rgba(59,130,246,0.5)]";
+                badge.innerText = "PROSES...";
+                card.classList.add("border-blue-500", "bg-slate-800/80");
+
+                try {
+                    const compressedBlob = await imageCompression(file, options);
+                    
+                    let finalName = file.name.replace(/\.[^/.]+$/, "");
+                    let ext = "jpg"; 
+                    if (targetFormat !== 'auto') {
+                        ext = targetFormat.split('/')[1];
+                    } else {
+                        ext = compressedBlob.type.split('/')[1] || "jpg";
+                    }
+                    finalName = `${finalName}_optimized.${ext}`; 
+
+                    zipObject.file(finalName, compressedBlob);
+
+                    const finalSizeMB = compressedBlob.size / 1024 / 1024;
+                    const displaySize = finalSizeMB < 1 
+                        ? (compressedBlob.size / 1024).toFixed(0) + ' KB' 
+                        : finalSizeMB.toFixed(2) + ' MB';
+                    
+                    const savings = ((file.size - compressedBlob.size) / file.size) * 100;
+                    
+                    badge.className = "text-[8px] sm:text-[9px] font-bold px-1.5 sm:px-2 py-0.5 rounded bg-green-900 text-green-300 border border-green-500 shadow-[0_0_10px_rgba(34,197,94,0.3)]";
+                    badge.innerText = "SELESAI";
+                    
+                    resultRow.classList.remove('hidden');
+                    if (savings > 0) {
+                        newSizeText.innerHTML = `${displaySize} <span class="text-green-600 bg-green-900/30 px-1 rounded text-[8px] sm:text-[9px] ml-1">-${savings.toFixed(0)}%</span>`;
+                    } else {
+                        newSizeText.innerHTML = `${displaySize} <span class="text-slate-400 text-[8px] sm:text-[9px] ml-1">(Max Detail)</span>`;
+                    }
+
+                    const blobUrl = URL.createObjectURL(compressedBlob);
+                    btnDl.href = blobUrl;
+                    btnDl.download = finalName;
+                    dlArea.classList.remove('hidden');
+                    
+                } catch (err) {
+                    console.error(err);
+                    badge.className = "text-[8px] sm:text-[9px] font-bold px-1.5 sm:px-2 py-0.5 rounded bg-red-900 text-red-300 border border-red-700";
+                    badge.innerText = "GAGAL";
+                } finally {
+                    card.classList.remove("border-blue-500", "bg-slate-800/80");
+                    const percent = Math.round(((i + 1) / selectedFiles.length) * 100);
+                    progressBar.style.width = `${percent}%`;
+                    progressText.innerText = `${percent}%`;
+                }
+            }
+
+            isProcessing = false;
+            btnProcess.disabled = false;
+            btnProcess.innerHTML = '<i class="fa-solid fa-wand-magic-sparkles mr-2"></i> Eksekusi Kompresi';
+            
+            btnDownloadAll.classList.remove('hidden');
+        }
+
+        function downloadAll() {
+            const btn = btnDownloadAll;
+            const originalText = btn.innerHTML;
+            btn.innerHTML = '<i class="fa-solid fa-spinner fa-spin mr-2"></i> Membungkus ZIP...';
+            
+            zipObject.generateAsync({type:"blob"})
+            .then(function(content) {
+                saveAs(content, "Studio_Optimized_Images.zip");
+                btn.innerHTML = originalText;
+            });
+        }
+    </script>
+    <style>
+        @keyframes progress-stripes {
+            from { background-position: 1rem 0; }
+            to { background-position: 0 0; }
+        }
+    </style>
+</body>
+</html>
